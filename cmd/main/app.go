@@ -20,7 +20,7 @@ func main() {
 	router := httprouter.New()
 
 	cfg := config.GetConfig()
-	fmt.Println("hello")
+
 	logger.Info("register user handler")
 	handler := user.NewHandler(logger)
 	handler.Register(router)
