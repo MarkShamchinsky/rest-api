@@ -18,9 +18,7 @@ func main() {
 	logger := logging.GetLogger()
 	logger.Info("create router")
 	router := httprouter.New()
-
 	cfg := config.GetConfig()
-	fmt.Println("h")
 	logger.Info("register user handler")
 	handler := user.NewHandler(logger)
 	handler.Register(router)
