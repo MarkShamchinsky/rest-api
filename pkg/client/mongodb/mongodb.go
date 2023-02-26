@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func NewClient(ctx context.Context, host, port, username, password, database, authDB string) (*mongo.Database, error) {
+func NewClient(ctx context.Context, host, port, username, password, database, authDB string) (db *mongo.Database, err error) {
 	var (
 		mongoDBURL string
 		isAuth     bool
@@ -22,6 +22,9 @@ func NewClient(ctx context.Context, host, port, username, password, database, au
 
 	clientOptions := options.Client().ApplyURI(mongoDBURL)
 	if isAuth {
+		if authDB == "" {
+			authDB = database
+		}
 		clientOptions.SetAuth(options.Credential{
 			AuthSource: authDB,
 			Username:   username,
@@ -34,7 +37,7 @@ func NewClient(ctx context.Context, host, port, username, password, database, au
 		return nil, fmt.Errorf("failed to connect to mongoDB due to error: %v", err)
 	}
 
-	if err := client.Ping(ctx, nil); err != nil {
+	if err = client.Ping(ctx, nil); err != nil {
 		return nil, fmt.Errorf("failed to ping to mongoDB due to error: %v", err)
 	}
 
