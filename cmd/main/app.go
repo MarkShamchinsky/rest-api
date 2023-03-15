@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net"
@@ -8,9 +9,12 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"rest-api/internal/author"
+	"rest-api/internal/author/db"
 	"rest-api/internal/config"
 	"rest-api/internal/user"
 	"rest-api/pkg/logging"
+	"rest-api/pkg/postresql"
 	"time"
 )
 
@@ -20,6 +24,17 @@ func main() {
 	router := httprouter.New()
 
 	cfg := config.GetConfig()
+
+	postgreSQLClient, err := postresql.NewClient(context.TODO(), 3, cfg.Storage)
+	if err != nil {
+		logger.Fatalf("%v", err)
+	}
+
+	repository := authordb.NewRepository(postgreSQLClient, logger)
+
+	logger.Info("register author handler")
+	authorHandler := author.NewHandler(repository, logger)
+	authorHandler.Register(router)
 
 	logger.Info("register user handler")
 	handler := user.NewHandler(logger)

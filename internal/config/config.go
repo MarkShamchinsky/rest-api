@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/ilyakaznacheev/cleanenv"
 	"rest-api/pkg/logging"
 	"sync"
@@ -39,5 +40,6 @@ func GetConfig() *Config {
 		}
 
 	})
+	fmt.Println(instance)
 	return instance
 }
