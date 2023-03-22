@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgconn"
+	"github.com/pkg/errors"
 	"rest-api/internal/author"
 	"rest-api/pkg/logging"
 	"rest-api/pkg/postresql"
@@ -30,7 +31,9 @@ func (r *repository) Create(ctx context.Context, author *author.Author) error {
 		`
 	r.logger.Trace(fmt.Sprintf("SQL Query: %s", formatQuery(q)))
 	if err := r.client.QueryRow(ctx, q, author.Name).Scan(&author.ID); err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
+		var pgErr *pgconn.PgError
+		if errors.Is(err, pgErr) {
+			pgErr = err.(*pgconn.PgError)
 			newErr := fmt.Errorf(fmt.Sprintf("SQL error: %s, Detail: %s, Where: %s, SQLState: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.SQLState()))
 			r.logger.Error(newErr)
 			return nil
